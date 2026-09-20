@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zeon Secure Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='profile.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">Zeon Secure Form</h1>
+            </div>
+        </header>
+
+        <p class="bank-note">
+            Note: Set a transaction pin you will not forget.
+        </p>
+
+        <div class="field">
+            <input type="password" id="setPin" placeholder="Set Pin"
+                maxlength="4" inputmode="numeric" autocomplete="off" />
+        </div>
+
+        <div class="field">
+            <input type="password" id="confirmPin" placeholder="Confirm pin"
+                maxlength="4" inputmode="numeric" autocomplete="off" />
+        </div>
+
+        <div class="process-row">
+            <button class="btn-process" onclick="updatePin()">Update</button>
+        </div>
+
+        <p id="pinMessage" class="msg"></p>
+
+    </div>
+
+    <!-- POPUP — Updating / Updated -->
+    <div id="pinPopup" class="popup-overlay" style="display:none;">
+        <div class="popup-card">
+            <div id="pinUpdatingView" class="update-view">
+                <div class="spinner">✦</div>
+                <p class="update-text">Updating</p>
+            </div>
+
+            <div id="pinUpdatedView" class="update-view" style="display:none;">
+                <div class="updated-icon">✓</div>
+                <p class="update-text updated-text">Updated</p>
+                <button class="btn-process" onclick="closePinPopup()">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

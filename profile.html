@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profile Setting - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">Zeon Profile Setting</h1>
+            </div>
+        </header>
+
+        <!-- Avatar + Greeting -->
+        <div class="profile-avatar-wrap">
+            <label for="profileAvatarInput" class="profile-avatar">
+                <div class="profile-avatar-preview" id="profileAvatarPreview">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="profile-camera-badge">📷</div>
+            </label>
+            <input type="file" id="profileAvatarInput" accept="image/*" onchange="previewProfileAvatar(event)" />
+            <p class="profile-greet">Hi, <span id="profileGreetName">—</span></p>
+            <button class="change-photo-btn" onclick="document.getElementById('profileAvatarInput').click()">
+                Change Profile Picture
+            </button>
+        </div>
+
+        <!-- Change Phone Number -->
+        <div class="field">
+            <input type="tel" id="newPhone" placeholder="Change phone number" autocomplete="off" />
+        </div>
+
+        <!-- Change Password -->
+        <div class="field">
+            <input type="password" id="newPassword" placeholder="Change password" autocomplete="off" />
+        </div>
+
+        <!-- Change Name -->
+        <div class="field">
+            <input type="text" id="newName" placeholder="Change your name" autocomplete="off" />
+        </div>
+
+        <div class="process-row">
+            <button class="btn-process" onclick="updateProfile()">Update</button>
+        </div>
+
+        <p id="profileMessage" class="msg"></p>
+
+
+        <!-- Logout Button -->
+        <button class="btn-logout-full" onclick="logoutUser()">
+            ⏻ Logout
+        </button>
+
+    </div>
+
+    <!-- POPUP — Updating / Updated -->
+    <div id="profilePopup" class="popup-overlay" style="display:none;">
+        <div class="popup-card">
+            <div id="profileUpdatingView" class="update-view">
+                <div class="spinner">✦</div>
+                <p class="update-text">Updating</p>
+            </div>
+
+            <div id="profileUpdatedView" class="update-view" style="display:none;">
+                <div class="updated-icon">✓</div>
+                <p class="update-text updated-text">Updated</p>
+                <button class="btn-process" onclick="closeProfilePopup()">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

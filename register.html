@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Register - Zeon Cash Giver</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+        <div class="card" id="step1">
+
+            <div class="logo-box">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <text x="50" y="70" text-anchor="middle"
+                          font-family="Arial Black, sans-serif"
+                          font-size="60" font-weight="900"
+                          fill="#a855f7">Z</text>
+                </svg>
+                <span class="logo-text">zeon</span>
+            </div>
+
+            <h1 class="title">Create Account</h1>
+            <p class="subtitle">Sign up to start earning</p>
+
+            <div class="field">
+                <label>Full Name</label>
+                <input type="text" id="regFullName" placeholder="John Doe" autocomplete="off" />
+            </div>
+
+            <div class="field">
+                <label>Phone Number</label>
+                <input type="tel" id="regPhone" placeholder="09012345678" autocomplete="off" />
+            </div>
+
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="regPassword" placeholder="Enter password (min 6 chars)" autocomplete="off" />
+            </div>
+
+            <div class="field">
+                <label>Confirm Password</label>
+                <input type="password" id="regConfirm" placeholder="Confirm password" autocomplete="off" />
+            </div>
+
+            <div class="field">
+                <label>Referral Code <span style="opacity:0.5">(optional)</span></label>
+                <input type="text" id="regReferralCode" placeholder="Enter referral code" autocomplete="off" />
+            </div>
+
+            <p class="note">
+                Note: <a href="https://docs.google.com/document/d/1rlKfWAFAnfeWC58PnK_VCDYgjphZ8dNel6ufOCd86fA/edit?usp=drivesdk" target="_blank">Read our Terms and Conditions</a>
+            </p>
+
+            <label class="check-row">
+                <input type="checkbox" id="agreeTerms" />
+                <span class="check-box"></span>
+                <span class="check-text">I agree to the terms and conditions</span>
+            </label>
+
+            <button onclick="registerUser()" class="btn-continue" style="width:100%;" id="registerBtn">
+                Register
+            </button>
+
+            <p id="registerMessage" class="msg"></p>
+
+            <div style="text-align:center; margin-top:20px;">
+                <span style="color:#a78bfa; font-size:13px;">Already have an account?</span>
+                <br>
+                <a href="login.html" style="color:#a855f7; font-weight:700; text-decoration:none; font-size:14px; display:inline-block; margin-top:8px;">
+                    Login →
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+
+    <script>
+    // ============================================================
+    // 🎁 STARTING BALANCE — CHANGE THIS NUMBER TO ANYTHING YOU WANT
+    // ============================================================
+    var STARTING_BALANCE = 0;   // ← Change 0 to 500, 1000, 10000, etc.
+
+    // ============================================================
+    // REGISTER USER
+    // ============================================================
+    async function registerUser() {
+        var fullName = document.getElementById('regFullName').value.trim();
+        var phone = document.getElementById('regPhone').value.trim();
+        var password = document.getElementById('regPassword').value;
+        var confirm = document.getElementById('regConfirm').value;
+        var referralCode = document.getElementById('regReferralCode').value.trim().toUpperCase();
+        var agree = document.getElementById('agreeTerms').checked;
+        var msg = document.getElementById('registerMessage');
+        var btn = document.getElementById('registerBtn');
+
+        // Validations
+        if (!fullName || !phone || !password || !confirm) {
+            msg.textContent = '❌ Please fill all fields';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+        if (password !== confirm) {
+            msg.textContent = '❌ Passwords do not match';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+        if (password.length < 6) {
+            msg.textContent = '❌ Password must be at least 6 characters';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+        if (!agree) {
+            msg.textContent = '❌ Please agree to the terms';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Creating account...';
+        msg.textContent = '';
+        msg.style.color = '';
+
+        try {
+            // Check if user already exists
+            var existing = await dbGetUser(phone);
+            if (existing) {
+                msg.textContent = '❌ This phone number is already registered';
+                msg.style.color = '#ff6b6b';
+                btn.disabled = false;
+                btn.textContent = 'Register';
+                return;
+            }
+
+            // Find referrer
+            var referredBy = null;
+            if (referralCode) {
+                var allUsers = await dbGetUsers();
+                var referrer = (allUsers || []).find(function(u) {
+                    return u.referralCode === referralCode;
+                });
+                if (referrer) referredBy = referrer.userId;
+            }
+
+            // Create new user
+            var newUser = {
+                userId: phone,
+                fullName: fullName,
+                phone: phone,
+                password: password,
+                avatar: null,
+                bank: null,
+                pin: null,
+                currentLevel: 'Rox 0',
+                balance: STARTING_BALANCE,
+                totalEarned: 0,
+                todayProfit: 0,
+                yesterdayProfit: 0,
+                totalProfit: 0,
+                tasksCompletedToday: 0,
+                lastTaskDate: new Date().toISOString().split('T')[0],
+                registrationDate: new Date().toISOString().split('T')[0],
+                referralCode: fullName.toUpperCase().substring(0, 5) + '-' +
+                    Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+                referredBy: referredBy,
+                referralCount: 0,
+                referralEarnings: 0
+            };
+
+            var created = await dbCreateUser(newUser);
+
+            if (!created) {
+                msg.textContent = '❌ Registration failed. Try a different phone number.';
+                msg.style.color = '#ff6b6b';
+                btn.disabled = false;
+                btn.textContent = 'Register';
+                return;
+            }
+
+            // Bonus for referrer
+            if (referredBy) {
+                var referrer = await dbGetUser(referredBy);
+                if (referrer) {
+                    await dbUpdateUser(referredBy, {
+                        referralCount: (referrer.referralCount || 0) + 1,
+                        balance: (referrer.balance || 0) + 200,
+                        referralEarnings: (referrer.referralEarnings || 0) + 200
+                    });
+                }
+            }
+
+            // Save session
+            localStorage.setItem('zeon_currentUser', phone);
+
+            msg.textContent = '✅ Account created! Redirecting...';
+            msg.style.color = '#4CAF50';
+
+            setTimeout(function() {
+                window.location.href = 'index.html';
+            }, 1000);
+
+        } catch (e) {
+            console.error(e);
+            msg.textContent = '❌ Network error. Please try again.';
+            msg.style.color = '#ff6b6b';
+            btn.disabled = false;
+            btn.textContent = 'Register';
+        }
+    }
+
+    // Auto-fill referral from URL
+    document.addEventListener('DOMContentLoaded', function() {
+        var ref = new URLSearchParams(window.location.search).get('ref');
+        if (ref) {
+            var inp = document.getElementById('regReferralCode');
+            if (inp) { inp.value = ref; inp.style.borderColor = '#4CAF50'; }
+        }
+    });
+    </script>
+
+</body>
+</html>

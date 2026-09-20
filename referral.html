@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Referral - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">Refer &amp; Earn</h1>
+            </div>
+        </header>
+
+        <section class="referral-code-box">
+            <p class="ref-label">YOUR REFERRAL CODE</p>
+            <p class="ref-code" id="myReferralCode">------</p>
+            <div class="ref-btn-row">
+                <button class="btn-soft" onclick="copyReferralCode()">📋 Copy Code</button>
+                <button class="btn-green" onclick="shareReferral()">📤 Share Link</button>
+            </div>
+        </section>
+
+        <section class="referral-stats">
+            <div class="stat-box">
+                <span class="stat-label">REFERRALS</span>
+                <span class="stat-value" id="totalReferrals">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">EARNED</span>
+                <span class="stat-value gold" id="referralEarnings">₦0</span>
+            </div>
+        </section>
+
+        <section class="referral-info">
+            <h3>💡 How It Works</h3>
+            <ul class="referral-list">
+                <li><span class="step-num">1</span> Share your code with friends</li>
+                <li><span class="step-num">2</span> Friend registers using your code</li>
+                <li><span class="step-num">3</span> You get ₦200 bonus per referral 🎉</li>
+            </ul>
+        </section>
+
+    </div>
+
+    <script>
+    (async function() {
+        function getUserId() {
+            return localStorage.getItem('zeon_currentUser');
+        }
+
+        async function loadReferral() {
+            const userId = getUserId();
+            if (!userId) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = await dbGetUser(userId);
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const codeEl = document.getElementById('myReferralCode');
+            if (codeEl) codeEl.textContent = user.referralCode || 'N/A';
+
+            const refEl = document.getElementById('totalReferrals');
+            if (refEl) refEl.textContent = user.referralCount || 0;
+
+            const earnEl = document.getElementById('referralEarnings');
+            if (earnEl) earnEl.textContent = '₦' + (user.referralEarnings || 0).toLocaleString();
+        }
+
+        window.copyReferralCode = function() {
+            const codeEl = document.getElementById('myReferralCode');
+            if (codeEl && codeEl.textContent !== '------') {
+                navigator.clipboard.writeText(codeEl.textContent);
+                alert('✅ Copied: ' + codeEl.textContent);
+            }
+        };
+
+        window.shareReferral = function() {
+            const codeEl = document.getElementById('myReferralCode');
+            if (codeEl && codeEl.textContent !== '------') {
+                const url = window.location.origin + '/register.html?ref=' + codeEl.textContent;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Join Zeon Cash Giver!',
+                        text: '🎉 Use my code ' + codeEl.textContent + ' and earn rewards!',
+                        url: url
+                    });
+                } else {
+                    navigator.clipboard.writeText(url);
+                    alert('✅ Link copied: ' + url);
+                }
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadReferral);
+        } else {
+            loadReferral();
+        }
+    })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+</body>
+</html>
