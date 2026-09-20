@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login - Zeon Cash Giver</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+        <div class="card">
+
+            <!-- Logo -->
+            <div class="logo-box">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <text x="50" y="70" text-anchor="middle"
+                          font-family="Arial Black, sans-serif"
+                          font-size="60" font-weight="900"
+                          fill="#a855f7">Z</text>
+                </svg>
+                <span class="logo-text">zeon</span>
+            </div>
+
+            <h1 class="title">Welcome Back</h1>
+            <p class="subtitle">Login to your account</p>
+
+            <!-- Phone Number -->
+            <div class="field">
+                <label>Phone Number</label>
+                <input type="tel" id="loginPhone" placeholder="Enter your phone number" autocomplete="off" />
+            </div>
+
+            <!-- Password -->
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="off" />
+            </div>
+
+            <!-- Login Button -->
+            <button onclick="loginUser()" class="btn-continue" style="width:100%; margin-top:8px;" id="loginBtn">
+                Login
+            </button>
+
+            <p id="loginMessage" class="msg"></p>
+
+            <!-- Register Link -->
+            <div style="text-align:center; margin-top:20px;">
+                <span style="color:#a78bfa; font-size:13px;">Don't have an account?</span>
+                <br>
+                <a href="register.html" style="color:#a855f7; font-weight:700; text-decoration:none; font-size:14px; display:inline-block; margin-top:8px;">
+                    Create Account →
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+
+    <script>
+    // ============================================================
+    // LOGIN
+    // ============================================================
+    async function loginUser() {
+        var phone = document.getElementById('loginPhone').value.trim();
+        var password = document.getElementById('loginPassword').value;
+        var msg = document.getElementById('loginMessage');
+        var btn = document.getElementById('loginBtn');
+
+        // Validation
+        if (!phone || !password) {
+            msg.textContent = '❌ Please enter phone and password';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+
+        // Disable button
+        btn.disabled = true;
+        btn.textContent = '⏳ Logging in...';
+        msg.textContent = '';
+        msg.style.color = '';
+
+        try {
+            // Fetch user from Supabase
+            var user = await dbGetUser(phone);
+
+            if (!user) {
+                msg.textContent = '❌ No account found with this phone number';
+                msg.style.color = '#ff6b6b';
+                btn.disabled = false;
+                btn.textContent = 'Login';
+                return;
+            }
+
+            if (user.password !== password) {
+                msg.textContent = '❌ Wrong password';
+                msg.style.color = '#ff6b6b';
+                btn.disabled = false;
+                btn.textContent = 'Login';
+                return;
+            }
+
+            // Save session
+            localStorage.setItem('zeon_currentUser', phone);
+
+            msg.textContent = '✅ Login successful! Redirecting...';
+            msg.style.color = '#4CAF50';
+
+            setTimeout(function() {
+                window.location.href = 'index.html';
+            }, 800);
+
+        } catch (e) {
+            console.error(e);
+            msg.textContent = '❌ Network error. Please try again.';
+            msg.style.color = '#ff6b6b';
+            btn.disabled = false;
+            btn.textContent = 'Login';
+        }
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-redirect if already logged in
+        if (localStorage.getItem('zeon_currentUser')) {
+            window.location.href = 'index.html';
+        }
+    });
+
+    // Press Enter to login
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') loginUser();
+    });
+    </script>
+
+</body>
+</html>

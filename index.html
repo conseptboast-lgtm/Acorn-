@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zeon Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- SLIDING MENU DRAWER -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+    <aside class="drawer" id="drawer">
+        <div class="drawer-header">
+            <div class="drawer-logo">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <text x="50" y="70" text-anchor="middle"
+                          font-family="Arial Black, sans-serif"
+                          font-size="60" font-weight="900"
+                          fill="#a855f7">Z</text>
+                </svg>
+            </div>
+            <span class="drawer-title">Zeon Menu</span>
+        </div>
+
+        <nav class="drawer-nav">
+            <button class="drawer-item" onclick="window.location.href='deposit-record.html'">
+                <span class="di-icon">💰</span>
+                <span class="di-text">Deposit Record</span>
+                <span class="di-arrow">→</span>
+            </button>
+            <button class="drawer-item" onclick="window.location.href='withdraw-record.html'">
+                <span class="di-icon">💸</span>
+                <span class="di-text">Withdrawal Record</span>
+                <span class="di-arrow">→</span>
+            </button>
+            <button class="drawer-item" onclick="window.location.href='referral.html'">
+                <span class="di-icon">🎁</span>
+                <span class="di-text">Refer &amp; Earn</span>
+                <span class="di-arrow">→</span>
+            </button>
+            <button class="drawer-item" onclick="window.location.href='profile.html'">
+                <span class="di-icon">👤</span>
+                <span class="di-text">Profile Setting</span>
+                <span class="di-arrow">→</span>
+            </button>
+        </nav>
+
+        <button class="drawer-back" onclick="closeDrawer()">← Back</button>
+    </aside>
+
+    <!-- DASHBOARD -->
+    <div class="dash-wrap">
+
+        <header class="dash-top">
+            <button class="menu-btn" onclick="openDrawer()">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="user-chip">
+                <div class="user-avatar" id="dashAvatar">Z</div>
+                <span class="user-label" id="userName">User</span>
+            </div>
+
+            <button class="online-btn" onclick="openOnlineService()" title="Online Service">
+                <span class="online-icon">🎧</span>
+                <span class="online-dot"></span>
+            </button>
+        </header>
+
+        <section class="profit-grid">
+            <div class="profit-box">
+                <span class="pb-label">Today's Profit</span>
+                <span class="pb-value" id="todayProfit">₦0</span>
+            </div>
+            <div class="profit-box">
+                <span class="pb-label">Yesterday's Profit</span>
+                <span class="pb-value" id="yesterdayProfit">₦0</span>
+            </div>
+            <div class="profit-box profit-wide">
+                <span class="pb-label">Total Profit</span>
+                <span class="pb-value pb-big" id="totalProfit">₦0</span>
+            </div>
+        </section>
+
+        <section class="action-row">
+            <button class="action-btn action-deposit" onclick="window.location.href='deposit.html'">
+                <span class="ab-icon">💵</span>
+                <span class="ab-text">Deposit</span>
+            </button>
+            <button class="action-btn action-withdraw" onclick="window.location.href='withdraw.html'">
+                <span class="ab-icon">💸</span>
+                <span class="ab-text">Withdraw</span>
+            </button>
+        </section>
+
+        <!-- SLIDING BANNER -->
+        <section class="banner-box">
+            <div class="banner-track" id="bannerTrack">
+
+                <div class="banner-slide">
+                    <div class="banner-text">
+                        <h3>Earn with Zeon</h3>
+                        <p>Complete daily tasks. Get paid.</p>
+                    </div>
+                    <div class="banner-art">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="b1acc" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#a855f7"/>
+                                    <stop offset="100%" stop-color="#ec4899"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="50" cy="30" r="10" fill="#ffb8d4"/>
+                            <rect x="38" y="42" width="24" height="38" rx="8" fill="url(#b1acc)"/>
+                            <rect x="20" y="50" width="20" height="6" rx="3" fill="#a855f7"/>
+                            <rect x="60" y="50" width="20" height="6" rx="3" fill="#a855f7"/>
+                            <rect x="42" y="80" width="6" height="12" rx="3" fill="#7c3aed"/>
+                            <rect x="52" y="80" width="6" height="12" rx="3" fill="#7c3aed"/>
+                            <rect x="22" y="8" width="56" height="22" rx="5" fill="#fff0f6" stroke="#a855f7" stroke-width="1.5"/>
+                            <text x="50" y="24" text-anchor="middle" font-family="Arial Black" font-size="10" font-weight="900" fill="#7c3aed">EARN</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="banner-slide">
+                    <div class="banner-text">
+                        <h3>Fast Withdrawals</h3>
+                        <p>Direct to your bank.</p>
+                    </div>
+                    <div class="banner-art">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="25" y="55" width="50" height="12" rx="2" fill="#22c55e" stroke="#16a34a" stroke-width="1.5"/>
+                            <rect x="28" y="42" width="44" height="12" rx="2" fill="#22c55e" stroke="#16a34a" stroke-width="1.5"/>
+                            <rect x="31" y="29" width="38" height="12" rx="2" fill="#22c55e" stroke="#16a34a" stroke-width="1.5"/>
+                            <text x="50" y="51" text-anchor="middle" font-size="10" font-weight="900" fill="#fff">₦</text>
+                            <text x="50" y="64" text-anchor="middle" font-size="10" font-weight="900" fill="#fff">₦</text>
+                            <text x="50" y="77" text-anchor="middle" font-size="10" font-weight="900" fill="#fff">₦</text>
+                            <path d="M 78 15 L 68 40 L 78 40 L 72 62 L 88 32 L 78 32 Z" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="banner-slide">
+                    <div class="banner-text">
+                        <h3>Refer &amp; Earn</h3>
+                        <p>Get ₦200 per friend.</p>
+                    </div>
+                    <div class="banner-art">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="28" cy="55" r="7" fill="#ffb8d4"/>
+                            <rect x="21" y="64" width="14" height="22" rx="5" fill="#a855f7"/>
+                            <circle cx="72" cy="55" r="7" fill="#ffb8d4"/>
+                            <rect x="65" y="64" width="14" height="22" rx="5" fill="#ec4899"/>
+                            <path d="M 28 50 Q 50 20 72 50" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="3,3"/>
+                            <rect x="42" y="38" width="16" height="16" rx="3" fill="#fff0f6" stroke="#a855f7" stroke-width="1.5"/>
+                            <line x1="50" y1="38" x2="50" y2="54" stroke="#ec4899" stroke-width="1.5"/>
+                            <line x1="42" y1="46" x2="58" y2="46" stroke="#ec4899" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Slide 4 — LIVE CHAT -->
+                <div class="banner-slide live-chat-slide" onclick="openOnlineService()">
+                    <div class="banner-text">
+                        <h3>Live Chat</h3>
+                        <p>Chat with support now ●</p>
+                    </div>
+                    <div class="banner-art">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="b4acc" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#22c55e"/>
+                                    <stop offset="100%" stop-color="#16a34a"/>
+                                </linearGradient>
+                            </defs>
+                            <rect x="15" y="25" width="70" height="45" rx="12" fill="url(#b4acc)"/>
+                            <circle cx="38" cy="47" r="5" fill="#fff"/>
+                            <circle cx="50" cy="47" r="5" fill="#fff"/>
+                            <circle cx="62" cy="47" r="5" fill="#fff"/>
+                            <path d="M 30 70 L 25 85 L 42 72 Z" fill="url(#b4acc)"/>
+                            <circle cx="78" cy="28" r="6" fill="#22c55e" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+            <div class="banner-dots" id="bannerDots">
+                <span class="bd active"></span>
+                <span class="bd"></span>
+                <span class="bd"></span>
+                <span class="bd"></span>
+            </div>
+        </section>
+
+        <!-- SECURE + JOIN SNAPCHAT -->
+        <section class="bottom-row">
+            <button class="secure-chip" onclick="window.location.href='secure.html'">
+                <span class="sec-icon">🔒</span>
+                <span class="sec-text">Secure</span>
+            </button>
+            <button class="join-btn" onclick="joinSnapchat()">
+                <span>Join Group 👻</span>
+            </button>
+        </section>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="window.location.href='index.html'">
+            <span class="nav-ico">🏠</span>
+            <span class="nav-txt">Home</span>
+        </button>
+        <button class="nav-btn" onclick="window.location.href='tasks.html'">
+            <span class="nav-ico">📋</span>
+            <span class="nav-txt">Tasks</span>
+        </button>
+        <button class="nav-btn" onclick="window.location.href='vip.html'">
+            <span class="nav-ico">🏆</span>
+            <span class="nav-txt">VIP</span>
+        </button>
+    </nav>
+
+    <!-- ============================================================
+         TAWK.TO — Move bubble off-screen
+         ============================================================ -->
+    <script type="text/javascript">
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+
+    Tawk_API.customStyle = {
+        visibility: {
+            desktop: { position: 'br', xOffset: 2000, yOffset: 2000 },
+            mobile:  { position: 'br', xOffset: 2000, yOffset: 2000 }
+        }
+    };
+
+    Tawk_API.onLoad = function() {
+        try { Tawk_API.hideWidget(); } catch(e) {}
+    };
+
+    (function(){
+        var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/6a886fabc68c8a344578d975/default';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    })();
+    </script>
+
+    <!-- ============================================================
+         SNAPCHAT GROUP LINK (global function)
+         ============================================================ -->
+    <script>
+    function joinSnapchat() {
+        window.open('https://snapchat.com/t/9K0E4rSs', '_blank');
+    }
+    </script>
+
+    <!-- ============================================================
+         SUPABASE → CONFIG → APP LOGIC
+         ============================================================ -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>

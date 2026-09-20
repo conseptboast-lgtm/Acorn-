@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deposit Record - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">D-Record</h1>
+            </div>
+        </header>
+
+        <div id="recordList" class="record-list">
+            <p class="empty-msg">Loading...</p>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script>
+    (async function() {
+        var listEl = document.getElementById('recordList');
+
+        function renderRecord(item) {
+            var statusClass = 'status-pending';
+            if (item.status === 'Approved' || item.status === 'Success') statusClass = 'status-approved';
+            if (item.status === 'Failed') statusClass = 'status-failed';
+
+            var datetime = (item.date || '') + ' • ' + (item.time || '--:--');
+
+            return '<div class="record-item">' +
+                '<div class="record-top">' +
+                    '<div class="record-amount">₦' + (item.amount || 0).toLocaleString() + '</div>' +
+                    '<div class="record-status-badge ' + statusClass + '">' + (item.status || 'Pending') + '</div>' +
+                '</div>' +
+                '<div class="record-bottom">' +
+                    '<span class="record-label">Date & Time</span>' +
+                    '<span class="record-datetime">' + datetime + '</span>' +
+                '</div>' +
+            '</div>';
+        }
+
+        async function loadRecords() {
+            var userId = localStorage.getItem('zeon_currentUser');
+            if (!userId) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                var data = await dbGetDeposits();
+                // Filter by this user
+                var mine = (data || []).filter(function(d) {
+                    return d.userId === userId;
+                });
+
+                if (mine.length === 0) {
+                    listEl.innerHTML = '<p class="empty-msg">No more data</p>';
+                    return;
+                }
+
+                listEl.innerHTML = mine.map(renderRecord).join('');
+            } catch(e) {
+                console.error(e);
+                listEl.innerHTML = '<p class="empty-msg">Error loading records</p>';
+            }
+        }
+
+        loadRecords();
+    })();
+    </script>
+</body>
+</html>

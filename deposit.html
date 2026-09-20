@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deposit - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">Zeon Deposit Form</h1>
+            </div>
+        </header>
+
+        <!-- ============================================
+             SCREEN 1 — Form (amount + select bank)
+             ============================================ -->
+        <div id="screenForm">
+            <div class="deposit-page-label">&lt; Deposit Page &gt;</div>
+
+            <p class="deposit-note">
+                Note: Transfer the exact amount you write to avoid any errors.
+            </p>
+
+            <div class="field">
+                <input type="number" id="depositAmount" placeholder="Enter amount" />
+            </div>
+
+            <p class="transfer-label">Transfer to:</p>
+
+            <div class="pay-options">
+                <label class="pay-option">
+                    <input type="radio" name="payOption" value="Pay 1" />
+                    <span class="pay-radio"></span>
+                    <span class="pay-text">Pay 1 — MoMo PSB</span>
+                </label>
+
+                <label class="pay-option">
+                    <input type="radio" name="payOption" value="Pay 2" />
+                    <span class="pay-radio"></span>
+                    <span class="pay-text">Pay 2 — SmartCash PSB</span>
+                </label>
+
+                <label class="pay-option">
+                    <input type="radio" name="payOption" value="Pay 3" />
+                    <span class="pay-radio"></span>
+                    <span class="pay-text">Pay 3 — PalmPay Business</span>
+                </label>
+            </div>
+
+            <div class="process-row">
+                <button class="btn-process" onclick="processDeposit()">Process</button>
+            </div>
+
+            <p id="depositMessage" class="msg"></p>
+        </div>
+
+        <!-- ============================================
+             SCREEN 2 — Bank Transfer (dynamic details)
+             ============================================ -->
+        <div id="screenBank" style="display:none;">
+            <div class="bank-header">&lt; Bank Transfer &gt;</div>
+
+            <p class="bank-note">
+                Note: Transfer your money before this time closes to avoid errors.
+            </p>
+
+            <div class="timer-display">
+                <span id="countdown">14:28</span>
+            </div>
+
+            <div class="bank-card">
+                <div class="bank-row">
+                    <span class="bank-label">Bank name</span>
+                    <div class="bank-value-row">
+                        <span class="bank-value" id="bBankName">—</span>
+                        <button class="copy-btn" onclick="copyBankField('bBankName', this)">COPY</button>
+                    </div>
+                </div>
+
+                <div class="bank-row">
+                    <span class="bank-label">Account name</span>
+                    <div class="bank-value-row">
+                        <span class="bank-value" id="bAccountName">Doris Isawode</span>
+                        <button class="copy-btn" onclick="copyBankField('bAccountName', this)">COPY</button>
+                    </div>
+                </div>
+
+                <div class="bank-row">
+                    <span class="bank-label">Account number</span>
+                    <div class="bank-value-row">
+                        <span class="bank-value" id="bAccountNumber">—</span>
+                        <button class="copy-btn" onclick="copyBankField('bAccountNumber', this)">COPY</button>
+                    </div>
+                </div>
+
+                <div class="bank-row">
+                    <span class="bank-label">Amount to transfer</span>
+                    <div class="bank-value-row">
+                        <span class="bank-value" id="bAmount">—</span>
+                        <button class="copy-btn" onclick="copyBankField('bAmount', this)">COPY</button>
+                    </div>
+                </div>
+            </div>
+
+            <label class="paid-check">
+                <input type="checkbox" id="paidCheck" onchange="handlePaidCheck(this)" />
+                <span class="paid-box"></span>
+                <span class="paid-text">I have paid</span>
+            </label>
+
+            <p id="bankMessage" class="msg"></p>
+        </div>
+
+        <!-- ============================================
+             SCREEN 3 — Processing
+             ============================================ -->
+        <div id="screenProcessing" style="display:none;">
+            <div class="status-box processing-box">
+                <div class="spinner">✦</div>
+                <p class="status-text">Processing</p>
+                <div class="progress">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SCREEN 4 — Sent
+             ============================================ -->
+        <div id="screenSent" style="display:none;">
+            <div class="status-box sent-box">
+                <div class="status-icon sent-icon">✓</div>
+                <p class="status-text">Sent</p>
+                <p class="sent-subtext">Your deposit is pending admin approval.</p>
+            </div>
+            <button class="btn-process" style="width:100%; margin-top:20px;"
+                onclick="window.location.href='deposit-record.html'">
+                View Record
+            </button>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+
+    <script>
+    // ============================================================
+    // BANK DETAILS — mapped to each Pay option
+    // ============================================================
+    var BANK_DETAILS = {
+        'Pay 1': {
+            bankName: 'MoMo PSB',
+            accountName: 'Doris Isawode',
+            accountNumber: '8100811884'
+        },
+        'Pay 2': {
+            bankName: 'SmartCash PSB',
+            accountName: 'Doris Isawode',
+            accountNumber: '9023245212'
+        },
+        'Pay 3': {
+            bankName: 'PalmPay Business',
+            accountName: 'Doris Isawode',
+            accountNumber: '8909444921'
+        }
+    };
+
+    var countdownTimer = null;
+    var pendingDeposit = null;
+
+    function $(id) { return document.getElementById(id); }
+
+    // ============================================================
+    // STEP 1 — Process (validate + show bank screen)
+    // ============================================================
+    function processDeposit() {
+        var amount = parseInt($('depositAmount').value);
+        var payOption = document.querySelector('input[name="payOption"]:checked');
+        var msg = $('depositMessage');
+
+        if (!amount || amount < 100) {
+            msg.textContent = '❌ Enter an amount (minimum ₦100)';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+        if (!payOption) {
+            msg.textContent = '❌ Please select a payment option';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+
+        var chosen = BANK_DETAILS[payOption.value];
+        if (!chosen) {
+            msg.textContent = '❌ Invalid payment option';
+            msg.style.color = '#ff6b6b';
+            return;
+        }
+
+        pendingDeposit = {
+            amount: amount,
+            payMethod: payOption.value,
+            bankName: chosen.bankName,
+            accountName: chosen.accountName,
+            accountNumber: chosen.accountNumber
+        };
+
+        // Fill in the bank details on screen 2
+        $('bBankName').textContent = chosen.bankName;
+        $('bAccountName').textContent = chosen.accountName;
+        $('bAccountNumber').textContent = chosen.accountNumber;
+        $('bAmount').textContent = '₦' + amount.toLocaleString();
+
+        // Show bank screen
+        $('screenForm').style.display = 'none';
+        $('screenBank').style.display = 'block';
+
+        // Start countdown
+        startCountdown(14 * 60 + 28);
+    }
+
+    // ============================================================
+    // COUNTDOWN TIMER
+    // ============================================================
+    function startCountdown(seconds) {
+        clearInterval(countdownTimer);
+        var remaining = seconds;
+
+        function tick() {
+            var m = Math.floor(remaining / 60);
+            var s = remaining % 60;
+            var el = $('countdown');
+            if (el) {
+                el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                if (remaining <= 60) el.classList.add('warning');
+            }
+            if (remaining <= 0) {
+                clearInterval(countdownTimer);
+                if (el) el.textContent = '00:00';
+                return;
+            }
+            remaining--;
+        }
+
+        tick();
+        countdownTimer = setInterval(tick, 1000);
+    }
+
+    // ============================================================
+    // COPY FIELD TO CLIPBOARD
+    // ============================================================
+    function copyBankField(elementId, btn) {
+        var el = $(elementId);
+        if (!el) return;
+        var text = el.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            if (btn) {
+                var original = btn.textContent;
+                btn.textContent = 'COPIED ✓';
+                btn.style.color = '#22c55e';
+                btn.style.borderColor = 'rgba(34, 197, 94, 0.6)';
+                setTimeout(function() {
+                    btn.textContent = original;
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 1500);
+            }
+        });
+    }
+
+    // ============================================================
+    // STEP 2 — "I have paid" → save to Supabase
+    // ============================================================
+    async function handlePaidCheck(el) {
+        if (!el.checked) return;
+
+        var userId = localStorage.getItem('zeon_currentUser');
+        if (!userId) {
+            alert('❌ You are not logged in. Please go back and login again.');
+            el.checked = false;
+            return;
+        }
+
+        if (typeof dbCreateDeposit !== 'function') {
+            alert('❌ supabase.js is not loaded. Check the file exists.');
+            el.checked = false;
+            return;
+        }
+
+        el.disabled = true;
+
+        // Show processing
+        $('screenBank').style.display = 'none';
+        $('screenProcessing').style.display = 'block';
+
+        setTimeout(function() {
+            var fill = $('progressFill');
+            if (fill) fill.style.width = '100%';
+        }, 100);
+
+        // After progress animation completes
+        setTimeout(async function() {
+            var now = new Date();
+            var date = now.toLocaleDateString('en-GB');
+            var time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+            var depositData = {
+                userId: userId,
+                amount: pendingDeposit.amount,
+                payMethod: pendingDeposit.payMethod + ' — ' + pendingDeposit.bankName,
+                status: 'Pending',
+                date: date,
+                time: time
+            };
+
+            var result = await dbCreateDeposit(depositData);
+
+            if (!result) {
+                alert('❌ Failed to save deposit. Please try again.');
+                $('screenProcessing').style.display = 'none';
+                $('screenBank').style.display = 'block';
+                el.disabled = false;
+                el.checked = false;
+                return;
+            }
+
+            // Show success screen
+            $('screenProcessing').style.display = 'none';
+            $('screenSent').style.display = 'block';
+        }, 3400);
+    }
+
+    // ============================================================
+    // CLEAN UP ON PAGE LEAVE
+    // ============================================================
+    window.addEventListener('beforeunload', function() {
+        clearInterval(countdownTimer);
+    });
+    </script>
+</body>
+</html>
