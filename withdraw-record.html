@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Withdrawal Record - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">W-Record</h1>
+            </div>
+        </header>
+
+        <div id="withdrawRecords" class="record-list">
+            <!-- Filled by JS -->
+        </div>
+
+        <p class="empty-msg" id="emptyMsg" style="display:none;">No more data</p>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

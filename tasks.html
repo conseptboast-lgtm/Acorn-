@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tasks - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <div class="task-progress-top">
+            <div class="tp-label">
+                <span>Task Progress</span>
+                <span id="earnedAmount">0 / 0</span>
+            </div>
+            <div class="tp-bar">
+                <div class="tp-fill" id="taskProgressFill"></div>
+            </div>
+        </div>
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">Watch &amp; Earn</h1>
+            </div>
+        </header>
+
+        <div class="video-wrap">
+            <div class="video-badge" id="videoBadge">Video 1 of 1</div>
+
+            <iframe
+                id="taskVideoIframe"
+                class="task-video"
+                src=""
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+
+            <div id="videoDoneOverlay" class="video-done-overlay" style="display:none;">
+                <div class="vdo-icon">✓</div>
+                <p class="vdo-text">All Tasks Completed!</p>
+                <p class="vdo-earned">You earned <span id="totalEarnedVideo">₦0.00</span></p>
+            </div>
+        </div>
+
+        <div class="task-info-box">
+            <div class="ti-row">
+                <span class="ti-label">Current Level</span>
+                <span class="ti-value gold" id="taskCurrentLevel">Rox 0</span>
+            </div>
+            <div class="ti-row">
+                <span class="ti-label">Daily Earning</span>
+                <span class="ti-value gold" id="taskDailyEarn">₦0</span>
+            </div>
+            <div class="ti-row">
+                <span class="ti-label">Tasks Per Day</span>
+                <span class="ti-value" id="taskTotalCount">0</span>
+            </div>
+        </div>
+
+        <div class="task-status-box">
+            <div class="ts-row">
+                <span class="ts-label">Current Task</span>
+                <span id="sessionStatus" class="ts-badge ts-ready">Task 1</span>
+            </div>
+            <div class="ts-row">
+                <span class="ts-label">Video Progress</span>
+                <span id="watchTime" class="ts-value">0s / 30s</span>
+            </div>
+            <div class="ts-row">
+                <span class="ts-label">Today's Earnings</span>
+                <span id="todayTotal" class="ts-value gold">₦0.00</span>
+            </div>
+        </div>
+
+        <div class="process-row">
+            <button class="btn-process" id="startTaskBtn">Start Task</button>
+        </div>
+
+        <p id="taskMessage" class="msg"></p>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+
+    <script>
+    (function() {
+        // ============================================================
+        // VIP DATA
+        // ============================================================
+        var LEVELS = {
+            'Rox 0': { tasks: 0, daily: 0 }, 'Rox 1': { tasks: 1, daily: 30 },
+            'Rox 2': { tasks: 2, daily: 60 }, 'Rox 3': { tasks: 2, daily: 180 },
+            'Rox 4': { tasks: 4, daily: 280 }, 'Rox 5': { tasks: 5, daily: 350 },
+            'Rox 6': { tasks: 6, daily: 500 }, 'Rox 7': { tasks: 7, daily: 700 },
+            'Rox 8': { tasks: 8, daily: 950 }, 'Rox 9': { tasks: 9, daily: 1200 },
+            'Rox 10': { tasks: 10, daily: 2000 }, 'Rox 11': { tasks: 20, daily: 3200 },
+            'Rox 12': { tasks: 30, daily: 4200 }, 'Rox 13': { tasks: 40, daily: 5000 },
+            'Rox 14': { tasks: 50, daily: 7000 }, 'DC 01': { tasks: 60, daily: 10000 },
+            'DC 03': { tasks: 70, daily: 20000 }, 'DC 05': { tasks: 80, daily: 20900 },
+            'DC 07': { tasks: 90, daily: 35000 }, 'DC 50': { tasks: 100, daily: 50000 },
+            'DC 100': { tasks: 100, daily: 70000 }
+        };
+
+        var VIDEO_POOL = [
+            'jNQXAC9IVRw', 'dQw4w9WgXcQ', 'aqz-KE-bpKQ', '9bZkp7q19f0',
+            'kJQP7kiw5Fk', '60ItHLz5WEA', 'RgKAFK5djSk', 'OPf0YbXqDm0',
+            'JGwWNGJdvx8', 'CevxZvSJLk8', 'fJ9rUzIMcZQ', 'hTWKbfoikeg',
+            'YQHsXMglC9A', 'pRpeEdMmmQ0', 'lp-EO5I60KA', 'PT2_F-1esPk',
+            '09R8_2nJtjg', 'e-ORhEE9VVg', 'YykjpeuMNEk', 'uelHwf8o7_U'
+        ];
+
+        var VIDEO_LENGTH = 30;
+        var taskTimer = null;
+        var taskSecondsWatched = 0;
+        var taskRunning = false;
+        var taskCompleted = false;
+        var currentTaskNum = 0;
+        var totalTasks = 0;
+        var dailyEarn = 0;
+        var userRef = null;
+
+        function getUserId() { return localStorage.getItem('zeon_currentUser'); }
+        function $(id) { return document.getElementById(id); }
+
+        // ============================================================
+        // 🔇→🔊 CONTROL YOUTUBE IFRAME WITH postMessage
+        // ============================================================
+        function ytCommand(func, args) {
+            var iframe = $('taskVideoIframe');
+            if (!iframe || !iframe.contentWindow) return;
+            try {
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: func,
+                    args: args || []
+                }), '*');
+            } catch(e) {}
+        }
+
+        function unmuteVideo() {
+            ytCommand('unMute', []);
+            ytCommand('setVolume', [100]);
+        }
+
+        function muteVideo() {
+            ytCommand('mute', []);
+        }
+
+        // ============================================================
+        // LOAD VIDEO (autoplay + unmute after start)
+        // ============================================================
+        function loadVideo(index) {
+            var iframe = $('taskVideoIframe');
+            if (!iframe) return;
+            var videoId = VIDEO_POOL[index % VIDEO_POOL.length];
+
+            // Start muted → autoplay allowed → then unmute
+            iframe.src = 'https://www.youtube.com/embed/' + videoId +
+                '?autoplay=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&mute=1';
+
+            // After 800ms, unmute (browser permission is now granted)
+            setTimeout(function() {
+                unmuteVideo();
+            }, 800);
+
+            // Keep trying to unmute for 3 seconds (in case it was slow)
+            var tries = 0;
+            var iv = setInterval(function() {
+                tries++;
+                unmuteVideo();
+                if (tries >= 6) clearInterval(iv);
+            }, 500);
+
+            var badge = $('videoBadge');
+            if (badge) {
+                badge.textContent = 'Video ' + (index + 1) + ' of ' + totalTasks;
+                badge.style.animation = 'none';
+                setTimeout(function() { badge.style.animation = 'badgeFlash 1s ease'; }, 10);
+            }
+            if ($('watchTime')) $('watchTime').textContent = '0s / ' + VIDEO_LENGTH + 's';
+            taskSecondsWatched = 0;
+        }
+
+        // ============================================================
+        // EARNING TIMER
+        // ============================================================
+        function startEarningTimer() {
+            if (taskRunning) return;
+            taskRunning = true;
+            setStatus('Watching...', 'ts-running');
+            var btn = $('startTaskBtn');
+            if (btn) btn.textContent = 'Pause';
+            setMessage('💰 Video is playing — earning in progress', '#22c55e');
+
+            clearInterval(taskTimer);
+            taskTimer = setInterval(function() {
+                if (!taskRunning) return;
+                taskSecondsWatched++;
+                if ($('watchTime')) $('watchTime').textContent = taskSecondsWatched + 's / ' + VIDEO_LENGTH + 's';
+                if (taskSecondsWatched >= VIDEO_LENGTH) {
+                    clearInterval(taskTimer);
+                    completeOneTask();
+                }
+            }, 1000);
+        }
+
+        function stopEarningTimer() {
+            taskRunning = false;
+            clearInterval(taskTimer);
+            setStatus('Paused', 'ts-paused');
+            var btn = $('startTaskBtn');
+            if (btn) btn.textContent = 'Resume';
+            setMessage('⏸️ Paused — earning stopped', '#fbbf24');
+        }
+
+        // ============================================================
+        // START TASK
+        // ============================================================
+        function startTask() {
+            if (taskCompleted) { setMessage('✅ All tasks done today', '#4CAF50'); return; }
+
+            // Currently running → pause
+            if (taskRunning) {
+                ytCommand('pauseVideo', []);
+                stopEarningTimer();
+                return;
+            }
+
+            // Resume (mid-video)
+            if (taskSecondsWatched > 0) {
+                setMessage('▶️ Resuming...', '#22c55e');
+                ytCommand('playVideo', []);
+                // Ensure sound is on
+                setTimeout(unmuteVideo, 300);
+                setTimeout(unmuteVideo, 800);
+                startEarningTimer();
+                return;
+            }
+
+            // First time → play
+            setMessage('▶️ Playing video...', '#22c55e');
+            var vid = VIDEO_POOL[currentTaskNum % VIDEO_POOL.length];
+            var iframe = $('taskVideoIframe');
+            if (iframe) {
+                iframe.src = 'https://www.youtube.com/embed/' + vid +
+                    '?autoplay=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&mute=1';
+            }
+
+            // Unmute aggressively
+            setTimeout(unmuteVideo, 400);
+            setTimeout(unmuteVideo, 800);
+            setTimeout(unmuteVideo, 1500);
+
+            setTimeout(startEarningTimer, 1200);
+        }
+
+        // ============================================================
+        // COMPLETE ONE TASK
+        // ============================================================
+        async function completeOneTask() {
+            taskRunning = false;
+            var userId = getUserId();
+            if (!userId || !userRef) return;
+
+            var done = (userRef.tasksCompletedToday || 0) + 1;
+
+            if (done >= totalTasks) {
+                var earned = dailyEarn;
+                await dbUpdateUser(userId, {
+                    tasksCompletedToday: done,
+                    balance: (userRef.balance || 0) + earned,
+                    totalEarned: (userRef.totalEarned || 0) + earned,
+                    todayProfit: (userRef.todayProfit || 0) + earned
+                });
+
+                taskCompleted = true;
+                setStatus('Completed', 'ts-done');
+                var btn = $('startTaskBtn');
+                if (btn) { btn.disabled = true; btn.textContent = 'All Done Today'; btn.style.opacity = '0.5'; }
+                showOverlay(earned);
+                updateProgress(done, totalTasks);
+                if ($('todayTotal')) $('todayTotal').textContent = '₦' + ((userRef.todayProfit || 0) + earned).toFixed(2);
+                if ($('videoBadge')) $('videoBadge').textContent = 'All Done';
+                setMessage('🎉 All ' + totalTasks + ' tasks done! ₦' + earned.toLocaleString() + ' credited.', '#4CAF50');
+                ytCommand('pauseVideo', []);
+                var ifr = $('taskVideoIframe');
+                if (ifr) ifr.src = '';
+                return;
+            }
+
+            await dbUpdateUser(userId, { tasksCompletedToday: done });
+            userRef.tasksCompletedToday = done;
+            updateProgress(done, totalTasks);
+            currentTaskNum = done;
+            setStatus('Task ' + (done + 1) + ' of ' + totalTasks, 'ts-ready');
+            var btn2 = $('startTaskBtn');
+            if (btn2) { btn2.disabled = false; btn2.textContent = 'Start Task'; btn2.style.opacity = '1'; }
+            setMessage('✅ Task ' + done + ' done! Next video ready.', '#4CAF50');
+            loadVideo(currentTaskNum);
+        }
+
+        // ============================================================
+        // HELPERS
+        // ============================================================
+        function updateProgress(done, total) {
+            var pct = total > 0 ? (done / total) * 100 : 0;
+            if ($('taskProgressFill')) $('taskProgressFill').style.width = pct + '%';
+            if ($('earnedAmount')) $('earnedAmount').textContent = done + ' / ' + total;
+        }
+
+        function setStatus(text, cls) {
+            var el = $('sessionStatus');
+            if (el) { el.textContent = text; el.className = 'ts-badge ' + cls; }
+        }
+
+        function setMessage(text, color) {
+            var el = $('taskMessage');
+            if (el) { el.textContent = text; el.style.color = color; }
+        }
+
+        function showOverlay(earned) {
+            if ($('totalEarnedVideo')) $('totalEarnedVideo').textContent = '₦' + earned.toLocaleString();
+            if ($('videoDoneOverlay')) $('videoDoneOverlay').style.display = 'flex';
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        async function init() {
+            var userId = getUserId();
+            if (!userId) { window.location.href = 'login.html'; return; }
+
+            userRef = await dbGetUser(userId);
+            if (!userRef) { window.location.href = 'login.html'; return; }
+
+            var today = new Date().toISOString().split('T')[0];
+            if (userRef.lastTaskDate !== today) {
+                userRef.tasksCompletedToday = 0;
+                userRef.lastTaskDate = today;
+                await dbUpdateUser(userId, {
+                    tasksCompletedToday: 0,
+                    lastTaskDate: today
+                });
+            }
+
+            var level = LEVELS[userRef.currentLevel] || { tasks: 0, daily: 0 };
+            totalTasks = level.tasks;
+            dailyEarn = level.daily;
+
+            if ($('taskCurrentLevel')) $('taskCurrentLevel').textContent = userRef.currentLevel;
+            if ($('taskDailyEarn')) $('taskDailyEarn').textContent = '₦' + dailyEarn.toLocaleString();
+            if ($('taskTotalCount')) $('taskTotalCount').textContent = totalTasks;
+            if ($('todayTotal')) $('todayTotal').textContent = '₦' + (userRef.todayProfit || 0).toFixed(2);
+
+            var done = userRef.tasksCompletedToday || 0;
+            updateProgress(done, totalTasks);
+
+            if (totalTasks === 0) {
+                setStatus('Locked', 'ts-paused');
+                var btn = $('startTaskBtn');
+                if (btn) { btn.disabled = true; btn.textContent = 'VIP Required'; btn.style.opacity = '0.5'; }
+                setMessage('⚠️ Upgrade to a VIP level first', '#fbbf24');
+                if ($('videoBadge')) $('videoBadge').textContent = 'No Level';
+                return;
+            }
+
+            if (done >= totalTasks) {
+                taskCompleted = true;
+                setStatus('All Done', 'ts-done');
+                var btn2 = $('startTaskBtn');
+                if (btn2) { btn2.disabled = true; btn2.textContent = 'All Done Today'; btn2.style.opacity = '0.5'; }
+                setMessage('🎉 All tasks done today!', '#4CAF50');
+                showOverlay(userRef.todayProfit || 0);
+                if ($('videoBadge')) $('videoBadge').textContent = 'All Done';
+                return;
+            }
+
+            currentTaskNum = done;
+            setStatus('Task ' + (done + 1) + ' of ' + totalTasks, 'ts-ready');
+            setMessage('✅ Ready. Tap Start Task.', '#22c55e');
+
+            // Preload video silently (muted, no autoplay yet)
+            var iframe = $('taskVideoIframe');
+            if (iframe) {
+                var vid = VIDEO_POOL[currentTaskNum % VIDEO_POOL.length];
+                iframe.src = 'https://www.youtube.com/embed/' + vid +
+                    '?playsinline=1&rel=0&modestbranding=1&enablejsapi=1&mute=1';
+            }
+        }
+
+        // ============================================================
+        // READY
+        // ============================================================
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                if ($('startTaskBtn')) $('startTaskBtn').addEventListener('click', startTask);
+                init();
+            });
+        } else {
+            if ($('startTaskBtn')) $('startTaskBtn').addEventListener('click', startTask);
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

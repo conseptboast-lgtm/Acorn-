@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Support - VIP Task Earn</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-header">
+        <div>
+            <span class="greeting">💬</span>
+            <span class="user-name">Help & Support</span>
+        </div>
+        <button onclick="window.location.href='index.html'" class="btn-back">← Back</button>
+    </div>
+
+    <div class="app-content">
+        
+        <!-- ===== QUICK HELP ===== -->
+        <div class="section-card" style="text-align:center; background:rgba(255,215,0,0.05); border-color:rgba(255,215,0,0.2);">
+            <h3>🆘 Need Help?</h3>
+            <p style="color:#aaa; font-size:14px; margin-bottom:15px;">
+                Choose the fastest way to get help
+            </p>
+        </div>
+        <!-- ===== CONTACT FORM (SLOWER) ===== -->
+        <div class="section-card" style="border-color:#ffd700;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span style="font-size:28px;">📧</span>
+                <div>
+                    <h3 style="margin:0; color:#ffd700;">Send a Message</h3>
+                    <p style="font-size:12px; color:#aaa; margin:0;">📬 Reply within 24 hours</p>
+                </div>
+            </div>
+            <p style="color:#aaa; font-size:14px;">
+                For non-urgent issues like:
+            </p>
+            <ul style="color:#ccc; font-size:14px; margin:10px 0;">
+                <li>📝 Detailed questions</li>
+                <li>📊 Account inquiries</li>
+                <li>🤝 Referral questions</li>
+                <li>💡 Feature suggestions</li>
+            </ul>
+            
+            <div class="form-group">
+                <label>Your User ID</label>
+                <input type="text" id="supportUserId" placeholder="e.g., David123" />
+            </div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="supportFullName" placeholder="John Doe" />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="supportEmail" placeholder="john@gmail.com" />
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <select id="supportSubject">
+                    <option value="General">📌 General Inquiry</option>
+                    <option value="Deposit">💰 Deposit Issue</option>
+                    <option value="Withdrawal">💸 Withdrawal Issue</option>
+                    <option value="Tasks">📋 Tasks/Levels Issue</option>
+                    <option value="Referral">🤝 Referral Issue</option>
+                    <option value="Account">🔒 Account Issue</option>
+                    <option value="Other">📌 Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea id="supportMessage" rows="4" style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);" placeholder="Describe your issue in detail..."></textarea>
+            </div>
+            <button onclick="sendSupportMessage()" class="btn-primary">📩 Send Message</button>
+            <p id="supportResponse" class="task-message"></p>
+        </div>
+
+        <!-- ===== FAQ ===== -->
+        <div class="section-card">
+            <h3>📋 Frequently Asked Questions</h3>
+            
+            <details>
+                <summary>💰 How do I deposit?</summary>
+                <p>Go to <strong>Deposit</strong> page → View bank details → Send money → Contact admin on WhatsApp for approval.</p>
+            </details>
+            
+            <details>
+                <summary>💸 How do I withdraw?</summary>
+                <p>Go to <strong>Withdraw</strong> page → Enter bank details and amount → Submit request → Admin processes it.</p>
+            </details>
+            
+            <details>
+                <summary>📋 How do I earn money?</summary>
+                <p>Complete daily tasks on the <strong>Tasks</strong> page. You need to be on <strong>Rox 1</strong> or higher to earn.</p>
+            </details>
+            
+            <details>
+                <summary>🤝 How does the referral system work?</summary>
+                <p>Share your referral code → Friend registers → You get <strong>10%</strong> of their first deposit → Friend gets <strong>₦200</strong> bonus.</p>
+            </details>
+            
+            <details>
+                <summary>🔒 My account is blocked, what do I do?</summary>
+                <p>Use <strong>Live Chat</strong> for immediate help, or send a message using the form above.</p>
+            </details>
+        </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a886fabc68c8a344578d975/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+</body>
+</html>

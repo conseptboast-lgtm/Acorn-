@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIP Levels - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">VIP Levels</h1>
+            </div>
+        </header>
+
+        <div class="vip-current-box">
+            <div class="vip-current-label">Your Current Level</div>
+            <div class="vip-current-value" id="currentLevelDisplay">Rox 0</div>
+            <div class="vip-current-hint" id="currentLevelHint">Loading...</div>
+        </div>
+
+        <div id="levelsList" class="levels-list"></div>
+
+    </div>
+
+    <script>
+    (function() {
+        var VIP_LEVELS = [
+            { name: 'Rox 1',  cost: 300,     taskCount: 1,   daily: 30,     weekly: 180,     monthly: 720 },
+            { name: 'Rox 2',  cost: 600,     taskCount: 2,   daily: 60,     weekly: 360,     monthly: 1440 },
+            { name: 'Rox 3',  cost: 1000,    taskCount: 2,   daily: 180,    weekly: 1080,    monthly: 4320 },
+            { name: 'Rox 4',  cost: 3000,    taskCount: 4,   daily: 280,    weekly: 1680,    monthly: 6720 },
+            { name: 'Rox 5',  cost: 6000,    taskCount: 5,   daily: 350,    weekly: 2100,    monthly: 8400 },
+            { name: 'Rox 6',  cost: 10000,   taskCount: 6,   daily: 500,    weekly: 3000,    monthly: 12000 },
+            { name: 'Rox 7',  cost: 18500,   taskCount: 7,   daily: 700,    weekly: 4200,    monthly: 16800 },
+            { name: 'Rox 8',  cost: 28500,   taskCount: 8,   daily: 950,    weekly: 5700,    monthly: 22800 },
+            { name: 'Rox 9',  cost: 36900,   taskCount: 9,   daily: 1200,   weekly: 7200,    monthly: 28800 },
+            { name: 'Rox 10', cost: 58600,   taskCount: 10,  daily: 2000,   weekly: 12000,   monthly: 48000 },
+            { name: 'Rox 11', cost: 81200,   taskCount: 20,  daily: 3200,   weekly: 19200,   monthly: 76800 },
+            { name: 'Rox 12', cost: 120000,  taskCount: 30,  daily: 4200,   weekly: 25200,   monthly: 100800 },
+            { name: 'Rox 13', cost: 150000,  taskCount: 40,  daily: 5000,   weekly: 30000,   monthly: 120000 },
+            { name: 'Rox 14', cost: 200000,  taskCount: 50,  daily: 7000,   weekly: 42000,   monthly: 168000 },
+            { name: 'DC 01',  cost: 500000,  taskCount: 60,  daily: 10000,  weekly: 60000,   monthly: 240000 },
+            { name: 'DC 03',  cost: 1000000, taskCount: 70,  daily: 20000,  weekly: 120000,  monthly: 480000 },
+            { name: 'DC 05',  cost: 1800000, taskCount: 80,  daily: 20900,  weekly: 125400,  monthly: 501600 },
+            { name: 'DC 07',  cost: 2500000, taskCount: 90,  daily: 35000,  weekly: 210000,  monthly: 840000 },
+            { name: 'DC 50',  cost: 3900000, taskCount: 100, daily: 50000,  weekly: 300000,  monthly: 1200000 },
+            { name: 'DC 100', cost: 5000000, taskCount: 100, daily: 70000,  weekly: 420000,  monthly: 1680000 }
+        ];
+
+        function getUserId() { return localStorage.getItem('zeon_currentUser'); }
+        function $(id) { return document.getElementById(id); }
+
+        var currentUser = null;
+
+        async function render() {
+            var userId = getUserId();
+            if (!userId) { window.location.href = 'login.html'; return; }
+
+            // ✅ FETCH FROM SUPABASE
+            currentUser = await dbGetUser(userId);
+            if (!currentUser) { window.location.href = 'login.html'; return; }
+
+            var currentLevel = currentUser.currentLevel || 'Rox 0';
+            var balance = currentUser.balance || 0;
+
+            if ($('currentLevelDisplay')) $('currentLevelDisplay').textContent = currentLevel;
+            if ($('currentLevelHint')) {
+                $('currentLevelHint').innerHTML = 'Balance: <b style="color:#ffd54f;">₦' + balance.toLocaleString() + '</b>';
+            }
+
+            var container = $('levelsList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            VIP_LEVELS.forEach(function(level) {
+                var isUnlocked = level.name === currentLevel;
+                var canAfford = balance >= level.cost;
+
+                var card = document.createElement('div');
+                card.className = 'level-card' + (isUnlocked ? ' unlocked' : '');
+
+                var badgeClass = isUnlocked ? 'unlocked' : 'locked';
+                var badgeText = isUnlocked ? 'CURRENT' : 'LOCKED';
+                var applyText = isUnlocked ? '✓ Current Level' :
+                    (!canAfford ? '🔒 Insufficient Balance' : 'Apply for ' + level.name);
+                var applyClass = isUnlocked ? 'unlocked' : (!canAfford ? 'disabled' : '');
+                var disabled = (isUnlocked || !canAfford) ? 'disabled' : '';
+
+                card.innerHTML =
+                    '<div class="lc-header">' +
+                        '<span class="lc-name">' + level.name + '</span>' +
+                        '<span class="lc-badge ' + badgeClass + '">' + badgeText + '</span>' +
+                    '</div>' +
+                    '<div class="lc-cost">' +
+                        '<span class="lc-cost-label">Registration</span>' +
+                        '<span class="lc-cost-value">₦' + level.cost.toLocaleString() + '</span>' +
+                    '</div>' +
+                    '<div class="lc-grid">' +
+                        '<div class="lc-item"><span class="lc-item-label">DAILY EARN</span><span class="lc-item-value gold">₦' + level.daily.toLocaleString() + '</span></div>' +
+                        '<div class="lc-item"><span class="lc-item-label">WEEKLY EARN</span><span class="lc-item-value">₦' + level.weekly.toLocaleString() + '</span></div>' +
+                        '<div class="lc-item"><span class="lc-item-label">MONTHLY EARN</span><span class="lc-item-value">₦' + level.monthly.toLocaleString() + '</span></div>' +
+                        '<div class="lc-item"><span class="lc-item-label">DAILY TASKS</span><span class="lc-item-value">' + level.taskCount + '</span></div>' +
+                    '</div>' +
+                    '<button class="lc-apply ' + applyClass + '" ' + disabled + ' data-name="' + level.name + '" data-cost="' + level.cost + '">' +
+                        applyText +
+                    '</button>';
+
+                container.appendChild(card);
+            });
+
+            var buttons = container.querySelectorAll('.lc-apply:not([disabled])');
+            buttons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var name = this.getAttribute('data-name');
+                    var cost = parseInt(this.getAttribute('data-cost'));
+                    applyForLevel(name, cost);
+                });
+            });
+        }
+
+        async function applyForLevel(levelName, cost) {
+            var userId = getUserId();
+            if (!userId || !currentUser) return;
+
+            if (currentUser.currentLevel === levelName) {
+                alert('✅ You are already on ' + levelName);
+                return;
+            }
+
+            if ((currentUser.balance || 0) < cost) {
+                alert('❌ Insufficient balance!\n\nYour balance: ₦' + (currentUser.balance || 0).toLocaleString() +
+                    '\nRequired: ₦' + cost.toLocaleString());
+                return;
+            }
+
+            if (!confirm(
+                '💰 Apply for ' + levelName + '?\n\n' +
+                'Cost: ₦' + cost.toLocaleString() + '\n' +
+                'Balance: ₦' + (currentUser.balance || 0).toLocaleString() + '\n' +
+                'After: ₦' + ((currentUser.balance || 0) - cost).toLocaleString() + '\n\n' +
+                'Tap OK to confirm.'
+            )) return;
+
+            // ✅ UPDATE IN SUPABASE
+            await dbUpdateUser(userId, {
+                balance: (currentUser.balance || 0) - cost,
+                currentLevel: levelName,
+                tasksCompletedToday: 0,
+                lastTaskDate: new Date().toISOString().split('T')[0]
+            });
+
+            alert('✅ Upgrade Successful!\n\nYou are now on ' + levelName + '\nNew balance: ₦' + ((currentUser.balance || 0) - cost).toLocaleString());
+            location.reload();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', render);
+        } else {
+            render();
+        }
+    })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Withdraw - Zeon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dash-wrap">
+
+        <header class="record-header">
+            <button class="back-icon" onclick="window.location.href='index.html'">←</button>
+            <div class="record-title-wrap">
+                <div class="logo-mini">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" text-anchor="middle"
+                              font-family="Arial Black, sans-serif"
+                              font-size="60" font-weight="900"
+                              fill="#a855f7">Z</text>
+                    </svg>
+                    <span class="logo-mini-text">zeon</span>
+                </div>
+                <h1 class="record-title">Zeon Withdraw Form</h1>
+            </div>
+        </header>
+
+        <!-- Timer -->
+        <div class="withdraw-timer-row">
+            <span class="wd-timer" id="wdTimer">01:23</span>
+        </div>
+
+        <!-- Withdrawable Balance -->
+        <div class="wd-balance-box">
+            <div class="wd-balance-amount">₦<span id="withdrawBalance">0</span></div>
+            <div class="wd-balance-label">Withdrawable balance</div>
+        </div>
+
+        <!-- Add Bank Button -->
+        <button class="add-bank-btn" onclick="window.location.href='add-bank.html'">
+            <span class="ab-circle">+</span>
+            <span class="ab-text">Add bank</span>
+        </button>
+
+        <!-- Enter Amount -->
+        <div class="field">
+            <input type="number" id="withdrawAmount" placeholder="Enter Amount" autocomplete="off" />
+        </div>
+
+        <!-- Enter PIN -->
+        <div class="field">
+            <input type="password" id="withdrawPin" placeholder="Enter your pin"
+                maxlength="4" inputmode="numeric" autocomplete="off" />
+        </div>
+
+        <!-- Transfer To (only shows if user has bank) -->
+        <div id="transferSection" style="display:none;">
+            <p class="transfer-label">Transfer to:</p>
+
+            <div class="transfer-to-box">
+                <div class="transfer-row">
+                    <span class="tr-arrow">→</span>
+                    <span class="tr-value" id="trBankName">—</span>
+                </div>
+                <div class="transfer-row">
+                    <span class="tr-arrow">→</span>
+                    <span class="tr-value" id="trAccountName">—</span>
+                </div>
+                <div class="transfer-row">
+                    <span class="tr-arrow">→</span>
+                    <span class="tr-value" id="trAccountNumber">—</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- No bank yet — hint -->
+        <div id="noBankHint" class="no-bank-hint">
+            <p class="nb-icon">🏦</p>
+            <p class="nb-text">No bank added yet</p>
+            <p class="nb-sub">Tap <strong>+ Add bank</strong> above to add your bank account</p>
+        </div>
+
+        <!-- Submit -->
+        <div class="process-row">
+            <button class="btn-process" onclick="submitWithdraw()">Submit</button>
+        </div>
+
+        <p id="withdrawMessage" class="msg"></p>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
